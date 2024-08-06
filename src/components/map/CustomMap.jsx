@@ -6,7 +6,7 @@ import { useColorModeValue } from '@chakra-ui/react';
 
 const DEFAULT_CENTER = { lat: 52.50735, lng: -1.12776 };
 const DEFAULT_ZOOM = 7;
-const DEFAULT_ZOOM_WITH_LOCATION = 16;
+const DEFAULT_ZOOM_WITH_LOCATION = 20;
 
 const CustomMap = ({ place }) => {
   const [mapCenter, setMapCenter] = useState(DEFAULT_CENTER);
@@ -14,8 +14,8 @@ const CustomMap = ({ place }) => {
   const mapTheme = useColorModeValue('8c732c82e4ec29d9', '7a9e2ebecd32a903');
 
   useEffect(() => {
-    if (place?.location) {
-      setMapCenter(place.location);
+    if (place) {
+      setMapCenter(place);
       setZoom(DEFAULT_ZOOM_WITH_LOCATION);
     } else {
       setMapCenter(DEFAULT_CENTER);
@@ -37,8 +37,8 @@ const CustomMap = ({ place }) => {
         fullscreenControl={false}
         zoomControl={false}
       >
-        {place?.location && (
-          <AdvancedMarker position={place?.location}>
+        {place && (
+          <AdvancedMarker position={place}>
             <Pin
               background={'#FBBC04'}
               glyphColor={'#000'}
