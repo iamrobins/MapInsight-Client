@@ -21,6 +21,7 @@ function InsightsCard({ place, setPlace }) {
     photos,
     rating,
     userRatingCount,
+    summary,
     website,
     gMapsUri,
     reviews,
@@ -48,11 +49,7 @@ function InsightsCard({ place, setPlace }) {
         </Flex>
         <Stack mt="6" spacing="3">
           <Heading size="md">{placeName}</Heading>
-          <Text>
-            A perfect place for japan real flavour, Little bit expensive but
-            eveyone loved their food. Main highlights were portion size,
-            hygeine, staff and the envionment.
-          </Text>
+          <Text>{summary ? summary : 'Loading...'}</Text>
           <Text>{address}</Text>
           <Text color="blue.600" fontSize="2xl">
             Rating: {rating}

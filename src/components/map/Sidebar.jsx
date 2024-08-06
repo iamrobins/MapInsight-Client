@@ -23,9 +23,21 @@ const Sidebar = ({ place, setPlace }) => {
   const [text, setText] = useState();
   const [places, setPlaces] = useState([]);
 
+  const fetchPlacesWithSummaries = async jobId => {
+    const response = await fetch(
+      `${process.env.REACT_APP_HOST_URL}/v1/summaries/?jobId=${jobId}`
+    );
+    if (response.status !== 200) return;
+
+    const data = await response.json();
+    if (!data) return;
+    setPlaces(data || []);
+  };
+
   useEffect(() => {
     async function fetchPlaces() {
       if (!text) return;
+
       const response = await fetch(
         `${process.env.REACT_APP_HOST_URL}/v1/search/?text=${text}`
       );
@@ -33,7 +45,33 @@ const Sidebar = ({ place, setPlace }) => {
 
       const data = await response.json();
       if (!data) return;
-      setPlaces(data['data']);
+      setPlaces(data['data'] || []);
+
+      const ws = new WebSocket(process.env.REACT_APP_WS_HOST_URL);
+
+      ws.onopen = () => {
+        console.log('Connected to WebSocket server');
+        console.log('before senfin jobId', data);
+        ws.send(JSON.stringify({ jobId: data['jobId'] }));
+      };
+
+      ws.onmessage = async event => {
+        console.log(event.data);
+
+        // Check if the job status is "done" and close the connection
+        if (event.data.includes('complete')) {
+          ws.close();
+          await fetchPlacesWithSummaries(data['jobId']);
+        }
+      };
+
+      ws.onclose = () => {
+        console.log('Disconnected from WebSocket server');
+      };
+
+      ws.onerror = error => {
+        console.error('WebSocket error:', error);
+      };
     }
     fetchPlaces();
   }, [text]);
@@ -61,10 +99,13 @@ const Sidebar = ({ place, setPlace }) => {
             <ColorModeSwitcher />
           </Flex>
           <VStack spacing={4}>
-            {places.length > 0 &&
+            {places.length === 0 ? (
+              <></>
+            ) : (
               places.map(place => (
                 <Card key={place.id} place={place} setPlace={setPlace} />
-              ))}
+              ))
+            )}
           </VStack>
         </div>
         <div slot="overlay">
