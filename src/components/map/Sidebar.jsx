@@ -9,10 +9,19 @@ import {
   PlacePicker,
 } from '@googlemaps/extended-component-library/react';
 
-import { Flex, useColorModeValue } from '@chakra-ui/react';
-import { ColorModeSwitcher } from '../../ColorModeSwitcher';
+import {
+  Flex,
+  useColorModeValue,
+  InputGroup,
+  InputLeftElement,
+  Input,
+} from '@chakra-ui/react';
+import { SearchIcon } from '@chakra-ui/icons';
 
-const Sidebar = ({ college, setCollege }) => {
+import { ColorModeSwitcher } from '../../ColorModeSwitcher';
+import Card from './Card';
+
+const Sidebar = ({ place, setPlace }) => {
   const overlayLayoutRef = useRef(null);
   const pickerRef = useRef(null);
   const sideBarBg = useColorModeValue('#FFFFFF', 'gray.800');
@@ -26,28 +35,28 @@ const Sidebar = ({ college, setCollege }) => {
     >
       <OverlayLayout ref={overlayLayoutRef}>
         <div className="MainContainer" slot="main">
-          <Flex justifyContent={'center'} alignItems={'center'} px="2">
+          {/* <Flex justifyContent={'center'} alignItems={'center'} px="2">
             <PlacePicker
-              className="CollegePicker"
+              className="PlacePicker"
               ref={pickerRef}
               forMap="gmap"
               country={['us', 'ca', 'uk']}
               // type="university"
-              placeholder="Enter a college in the US or Canada"
+              placeholder="Enter a place in the US, Canada or UK"
               onPlaceChange={() => {
                 if (!pickerRef.current?.value) {
-                  setCollege(undefined);
+                  setPlace(undefined);
                 } else {
-                  setCollege(pickerRef.current?.value);
+                  setPlace(pickerRef.current?.value);
                 }
               }}
             />
             <ColorModeSwitcher />
-          </Flex>
+          </Flex> */}
 
-          <PlaceOverview
+          {/* <PlaceOverview
             size="large"
-            place={college}
+            place={place}
             googleLogoAlreadyDisplayed
           >
             <div slot="action">
@@ -64,7 +73,17 @@ const Sidebar = ({ college, setCollege }) => {
                 Directions
               </PlaceDirectionsButton>
             </div>
-          </PlaceOverview>
+          </PlaceOverview> */}
+          <Flex my={3} w="90%" mx="auto">
+            <InputGroup>
+              <InputLeftElement pointerEvents="none">
+                <SearchIcon color="gray.300" />
+              </InputLeftElement>
+              <Input type="text" placeholder="Search for places" />
+            </InputGroup>
+            <ColorModeSwitcher />
+          </Flex>
+          <Card />
         </div>
         <div slot="overlay">
           <IconButton
@@ -73,7 +92,7 @@ const Sidebar = ({ college, setCollege }) => {
           >
             Close
           </IconButton>
-          <PlaceDataProvider place={college}>
+          <PlaceDataProvider place={place}>
             <PlaceReviews />
           </PlaceDataProvider>
         </div>

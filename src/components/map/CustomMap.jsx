@@ -8,20 +8,20 @@ const DEFAULT_CENTER = { lat: 52.50735, lng: -1.12776 };
 const DEFAULT_ZOOM = 7;
 const DEFAULT_ZOOM_WITH_LOCATION = 16;
 
-const CustomMap = ({ college }) => {
+const CustomMap = ({ place }) => {
   const [mapCenter, setMapCenter] = useState(DEFAULT_CENTER);
   const [zoom, setZoom] = useState(DEFAULT_ZOOM);
   const mapTheme = useColorModeValue('8c732c82e4ec29d9', '7a9e2ebecd32a903');
 
   useEffect(() => {
-    if (college?.location) {
-      setMapCenter(college.location);
+    if (place?.location) {
+      setMapCenter(place.location);
       setZoom(DEFAULT_ZOOM_WITH_LOCATION);
     } else {
       setMapCenter(DEFAULT_CENTER);
       setZoom(DEFAULT_ZOOM);
     }
-  }, [college]);
+  }, [place]);
 
   return (
     <div className="SplitLayoutContainer" slot="main">
@@ -37,8 +37,8 @@ const CustomMap = ({ college }) => {
         fullscreenControl={false}
         zoomControl={false}
       >
-        {college?.location && (
-          <AdvancedMarker position={college?.location}>
+        {place?.location && (
+          <AdvancedMarker position={place?.location}>
             <Pin
               background={'#FBBC04'}
               glyphColor={'#000'}

@@ -10,7 +10,7 @@ import CustomMap from './CustomMap';
 const API_KEY = process.env.REACT_APP_MAP_INSIGHT_GCP_KEY;
 
 const MapLayout = () => {
-  const [college, setCollege] = useState(undefined);
+  const [place, setPlace] = useState(undefined);
   return (
     <div className="App">
       <APIProvider
@@ -19,8 +19,8 @@ const MapLayout = () => {
         version="beta"
       >
         <SplitLayout rowLayoutMinWidth={700}>
-          <Sidebar college={college} setCollege={setCollege} />
-          <CustomMap college={college} />
+          <Sidebar place={place} setPlace={setPlace} />
+          <CustomMap place={place} />
         </SplitLayout>
       </APIProvider>
     </div>

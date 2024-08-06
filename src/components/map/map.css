@@ -22,7 +22,7 @@
     height: 100%;
   }
   
-  .CollegePicker {
+  .PlacePicker {
     --gmpx-color-surface: #fff;
     flex-grow: 1;
     margin: 1rem;
