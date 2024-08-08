@@ -17,11 +17,29 @@ import { SearchIcon } from '@chakra-ui/icons';
 import { ColorModeSwitcher } from '../../ColorModeSwitcher';
 import Card from './Card';
 
+// Debounce function
+function useDebounce(value, delay) {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+
 const Sidebar = ({ place, setPlace }) => {
   const overlayLayoutRef = useRef(null);
   const sideBarBg = useColorModeValue('#FFFFFF', 'gray.800');
   const [text, setText] = useState();
   const [places, setPlaces] = useState([]);
+  const debouncedText = useDebounce(text, 600); // Adjust delay as necessary (e.g., 500ms)
 
   const fetchPlacesWithSummaries = async jobId => {
     const response = await fetch(
@@ -36,7 +54,7 @@ const Sidebar = ({ place, setPlace }) => {
 
   useEffect(() => {
     async function fetchPlaces() {
-      if (!text) return;
+      if (!text || text.length <= 4 || !debouncedText) return;
 
       const response = await fetch(
         `${process.env.REACT_APP_HOST_URL}/v1/search/?text=${text}`
@@ -46,12 +64,14 @@ const Sidebar = ({ place, setPlace }) => {
       const data = await response.json();
       if (!data) return;
       setPlaces(data['data'] || []);
+      console.log(data);
+
+      if (!data['jobId']) return;
 
       const ws = new WebSocket(process.env.REACT_APP_WS_HOST_URL);
 
       ws.onopen = () => {
         console.log('Connected to WebSocket server');
-        console.log('before senfin jobId', data);
         ws.send(JSON.stringify({ jobId: data['jobId'] }));
       };
 
@@ -60,8 +80,8 @@ const Sidebar = ({ place, setPlace }) => {
 
         // Check if the job status is "done" and close the connection
         if (event.data.includes('complete')) {
-          ws.close();
           await fetchPlacesWithSummaries(data['jobId']);
+          ws.close();
         }
       };
 
@@ -74,7 +94,7 @@ const Sidebar = ({ place, setPlace }) => {
       };
     }
     fetchPlaces();
-  }, [text]);
+  }, [debouncedText]);
 
   return (
     <Flex
@@ -98,7 +118,7 @@ const Sidebar = ({ place, setPlace }) => {
             </InputGroup>
             <ColorModeSwitcher />
           </Flex>
-          <VStack spacing={4}>
+          <VStack spacing={3} p={1}>
             {places.length === 0 ? (
               <></>
             ) : (
