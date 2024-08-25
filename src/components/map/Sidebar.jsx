@@ -11,6 +11,9 @@ import {
   InputLeftElement,
   Input,
   VStack,
+  Box,
+  SkeletonText,
+  Skeleton,
 } from '@chakra-ui/react';
 import { SearchIcon } from '@chakra-ui/icons';
 
@@ -39,59 +42,23 @@ const Sidebar = ({ place, setPlace }) => {
   const sideBarBg = useColorModeValue('#FFFFFF', 'gray.800');
   const [text, setText] = useState();
   const [places, setPlaces] = useState([]);
+  const [loading, setLoading] = useState(false);
   const debouncedText = useDebounce(text, 600); // Adjust delay as necessary (e.g., 500ms)
-
-  const fetchPlacesWithSummaries = async jobId => {
-    const response = await fetch(
-      `${process.env.REACT_APP_HOST_URL}/v1/summaries/?jobId=${jobId}`
-    );
-    if (response.status !== 200) return;
-
-    const data = await response.json();
-    if (!data) return;
-    setPlaces(data || []);
-  };
 
   useEffect(() => {
     async function fetchPlaces() {
       if (!text || text.length <= 4 || !debouncedText) return;
-
+      setPlaces([]);
+      setLoading(true);
       const response = await fetch(
-        `${process.env.REACT_APP_HOST_URL}/v1/search/?text=${text}`
+        `${process.env.REACT_APP_HOST_URL}/search/?text=${text}`
       );
       if (response.status !== 200) return;
 
       const data = await response.json();
       if (!data) return;
-      setPlaces(data['data'] || []);
-      console.log(data);
-
-      if (!data['jobId']) return;
-
-      const ws = new WebSocket(process.env.REACT_APP_WS_HOST_URL);
-
-      ws.onopen = () => {
-        console.log('Connected to WebSocket server');
-        ws.send(JSON.stringify({ jobId: data['jobId'] }));
-      };
-
-      ws.onmessage = async event => {
-        console.log(event.data);
-
-        // Check if the job status is "done" and close the connection
-        if (event.data.includes('complete')) {
-          await fetchPlacesWithSummaries(data['jobId']);
-          ws.close();
-        }
-      };
-
-      ws.onclose = () => {
-        console.log('Disconnected from WebSocket server');
-      };
-
-      ws.onerror = error => {
-        console.error('WebSocket error:', error);
-      };
+      setLoading(false);
+      setPlaces(data['places'] || []);
     }
     fetchPlaces();
   }, [debouncedText]);
@@ -114,13 +81,29 @@ const Sidebar = ({ place, setPlace }) => {
                 type="text"
                 placeholder="Search for places"
                 onChange={e => setText(e.target.value)}
+                disabled={loading}
               />
             </InputGroup>
             <ColorModeSwitcher />
           </Flex>
           <VStack spacing={3} p={1}>
-            {places.length === 0 ? (
+            {places.length === 0 && !loading ? (
               <></>
+            ) : places.length === 0 && loading ? (
+              <Box padding={'2'} w="100%" boxShadow="lg" bg={sideBarBg}>
+                <Skeleton my="8" height="20px" />
+                <Skeleton my="8" height="20px" />
+                <Skeleton my="8" height="20px" />
+                <Skeleton my="8" height="20px" />
+                <Skeleton my="8" height="20px" />
+                <Skeleton my="8" height="20px" />
+                <Skeleton my="8" height="20px" />
+                <Skeleton my="8" height="20px" />
+                <Skeleton my="8" height="20px" />
+                <Skeleton my="8" height="20px" />
+                <Skeleton my="8" height="20px" />
+                <Skeleton my="8" height="20px" />
+              </Box>
             ) : (
               places.map(place => (
                 <Card key={place.id} place={place} setPlace={setPlace} />
