@@ -12,7 +12,6 @@ import {
   Input,
   VStack,
   Box,
-  SkeletonText,
   Skeleton,
 } from '@chakra-ui/react';
 import { SearchIcon } from '@chakra-ui/icons';
